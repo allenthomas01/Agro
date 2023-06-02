@@ -11,7 +11,6 @@ const farmerSchema = new mongoose.Schema({
 	wardNo:{ type: Number, required: true },
 	password: { type: String, required: true }
 });
-
 // Create the User model
 const farmer = mongoose.model('Farmer', farmerSchema);
 
