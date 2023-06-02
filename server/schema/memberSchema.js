@@ -27,7 +27,7 @@ const newMember = new member({
 	wardNo:${wardNo},
 	password: ${password}
   });
-  
+  cont mem = await member.create({mobilnu:})
   newMember
 	.save()
 	.then((doc) => {
