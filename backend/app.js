@@ -1,7 +1,12 @@
 const express = require('express');
 const body_parser = require('body-parser');
+const bcrypt = require('bcrypt');
 const farmerRouter = require('./routers/farmerRouter');
+const officerRouter = require('./routers/officerRouter');
+const memberRouter = require('./routers/memberRouter');
 const app = express();
 app.use(body_parser.json());
 app.use('/',farmerRouter);
+app.use('/',officerRouter);
+app.use('/',memberRouter);
 module.exports=app;
