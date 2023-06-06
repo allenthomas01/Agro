@@ -1,8 +1,8 @@
 {
-  "name": "server",
+  "name": "AgroConnect",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "android application to aid farmers",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev":"nodemon main"
