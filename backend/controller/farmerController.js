@@ -9,7 +9,9 @@ exports.register = async (req, res, next) => {
             throw new Error(`UserName ${phone}, Already Registered`)
         }
         const response = await farmerService.registerFarmer(name,phone,password,district,taluk,block,kb,wardno);
-        res.json({ status: true, success: 'Farmer registered successfully' });
+        const otp = generateOtp(4)
+        fasttwosms(otp,phone)
+        res.json({ status: true, success: 'Farmer registered successfully',data:otp });
     } catch (err) {
         console.log("---> err -->", err);
         next(err);
