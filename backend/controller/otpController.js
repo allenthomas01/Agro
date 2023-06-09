@@ -1,44 +1,84 @@
 const OTP = require('../model/otpModel');
 const otpService = require('../services/otpServices');
 
-exports.generateOTP = async (req, res) => {
-  const { userIdentifier } = req.body;
+const { generateOTP } = require("../utils/otp");
+//const { sendSMS } = require("../utils/sms");
 
+const signup = async (req, res, next) => {
   try {
-    const otp = otpService.generateOTP(); // Implement this function to generate OTP
+    // extract phone number from request body
+    const { phone } = req.body;
 
-    // Save the OTP in the database
-    await OTP.create({ userIdentifier, otp });
+    // check duplicate phone number
+    const user = await OTP.findOne({
+      phone,
+    });
 
-    // Send the OTP using Twilio or SendGrid
-    await otpService.sendOTP(userIdentifier, otp);
+    if (user) {
+      return next({ status: 400, message: "Phone number already exists" });
+    }
 
-    res.json({ success: true, message: 'OTP generated and sent successfully.' });
+    // create new user
+    const newOTP = new OTP({
+      phone,
+    });
+
+    // generate 6 digit  otp
+    const otp = generateOTP(6);
+
+    // save otp in db
+
+    newOTP.otp = otp;
+    await newOTP.save();
+
+    // send otp
+
+    await sendSMS(phone, otp);
+
+    return res.status(201).json({
+      status: "success",
+      message: "6 digit otp sent on your phone number.",
+    });
   } catch (error) {
-    console.error('Error generating OTP:', error);
-    res.status(500).json({ success: false, error: 'Failed to generate OTP.' });
+    next(error);
   }
 };
 
-exports.verifyOTP = async (req, res) => {
-  const { userIdentifier, otp } = req.body;
-
+const verifyOTP = async (req, res, next) => {
   try {
-    // Find the OTP in the database
-    const storedOTP = await OTP.findOne({ userIdentifier });
+    // extract otp and phone number from request body
+    const { phone, otp } = req.body;
 
-    if (!storedOTP) {
-      return res.json({ success: false, message: 'OTP not found.' });
+    // verify phone number exists or not
+    const user = await OTP.findOne({
+      phone,
+    });
+
+    if (!user) {
+      return next({ status: 400, message: "Phone number is incorrect" });
     }
 
-    if (otp !== storedOTP.otp) {
-      return res.json({ success: false, message: 'Invalid OTP.' });
+    // verify otp
+
+    if (user.otp !== otp) {
+      return next({ status: 400, message: "Incorrect OTP" });
     }
 
-    // OTP is valid
-    res.json({ success: true, message: 'OTP verified successfully.' });
+    // delete otp
+
+    user.otp = "";
+    await user.save();
+
+    return res.status(201).json({
+      status: "success",
+      message: "OTP verified successfully",
+    });
   } catch (error) {
-    console.error('Error verifying OTP:', error);
-    res.status(500).json({ success: false, error: 'Failed to verify OTP.' });
+    next(error);
   }
+};
+
+module.exports = {
+  signup,
+  verifyOTP,
 };
