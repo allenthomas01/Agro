@@ -3,4 +3,4 @@ const memberController = require('../controller/memberController');
 
 router.post('/registermember',memberController.register);
 
-module.exports = router;
+module.exports = router; 

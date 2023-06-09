@@ -1,5 +1,5 @@
-const OTP = require('../models/otpModel');
-const otpService = require('../services/otpService');
+const OTP = require('../model/otpModel');
+const otpService = require('../services/otpServices');
 
 exports.generateOTP = async (req, res) => {
   const { userIdentifier } = req.body;
